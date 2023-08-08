@@ -1,0 +1,45 @@
+C51 COMPILER V9.54   MAIN                                                                  08/08/2023 23:38:33 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: G:\Keil C51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\mai
+                    -n.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          /*
+   2           * @Author: czqczqzzzzzz(czq)
+   3           * @Email: tenchenzhengqing@qq.com
+   4           * @Date: 2023-08-08 23:03:05
+   5           * @LastEditors: 陈正清-win
+   6           * @LastEditTime: 2023-08-08 23:37:46
+   7           * @FilePath: \2-1_点亮一个LED\main.c
+   8           * @Description: 点亮第一个LED代码，需要F7编译，然后下载到单片机里
+   9           * 
+  10           * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+  11           */
+  12          #include <REGX52.H>
+  13          
+  14          void main()
+  15          {
+  16   1        P2=0xFE;  //1111 1110
+  17   1        while(1)
+  18   1        {
+  19   2          
+  20   2        }
+  21   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =      5    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

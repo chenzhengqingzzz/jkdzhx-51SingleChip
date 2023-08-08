@@ -1,0 +1,4 @@
+Build target 'Target 1'
+compiling main.c...
+main.c(5): error C141: syntax error near '}'
+Target not created.
