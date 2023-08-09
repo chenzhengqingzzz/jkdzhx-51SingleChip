@@ -56,7 +56,7 @@ void main(){
 }
 ```
 
-![b7e3bddf62febab695cafc88ca9272d](C:\Users\CHENZH~1\AppData\Local\Temp\WeChat Files\b7e3bddf62febab695cafc88ca9272d.jpg)
+<img src="C:\Users\chenzhengqing\Desktop\jkdzhx-51SingleChip\C\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\微信图片_20230809214530.jpg" alt="微信图片_20230809214530" style="zoom:80%;" />
 
 成功点亮第一个灯
 
@@ -88,4 +88,4 @@ void main(){
 }
 ```
 
-![8620a40c3ba33e12baf00a6252e36ed](C:\Users\CHENZH~1\AppData\Local\Temp\WeChat Files\8620a40c3ba33e12baf00a6252e36ed.jpg)
+<img src="C:\Users\chenzhengqing\Desktop\jkdzhx-51SingleChip\C\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\微信图片_20230809214708.jpg" alt="微信图片_20230809214708" style="zoom:80%;" />
