@@ -22,13 +22,13 @@
 
 在硬件中，高电平代表未接通，低电平代表正负极接通，我们通过控制每个线路的高低电平来控制这个LED模块的亮灭，而在单片机的世界中，我们单片机的cpu可以控制与LED模块相连的寄存器中的二进制数（0代表低电平，正负极接通；1代表高电平，正负极未接通）来控制高低电平的 所以我们如果需要写每个电路的二进制数来控制高低电平（参照产品手册）
 
-<img src="C:\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\image-20230809213958936.png" alt="image-20230809213958936" style="zoom:80%;" />
+[1.jpg](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/C/Users/chenzhengqing/AppData/Roaming/Typora/typora-user-images/image-20230809213958936.png)
 
-<img src="C:\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\image-20230809214103379.png" alt="image-20230809214103379" style="zoom:80%;" />
+https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/C/Users/chenzhengqing/AppData/Roaming/Typora/typora-user-images/image-20230809214103379.png?raw=true
 
 点亮第一个LED灯的语句： 对照二进制转十六进制表格：
 
-<img src="C:\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\image-20230809214355187.png" alt="image-20230809214355187" style="zoom:80%;" />
+https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/C/Users/chenzhengqing/AppData/Roaming/Typora/typora-user-images/image-20230809214355187.png?raw=true
 
 `main.c`
 
@@ -56,7 +56,7 @@ void main(){
 }
 ```
 
-<img src="C:\Users\chenzhengqing\Desktop\jkdzhx-51SingleChip\C\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\微信图片_20230809214530.jpg" alt="微信图片_20230809214530" style="zoom:80%;" />
+![微信图片_20230809214530.jpg](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/C/Users/chenzhengqing/AppData/Roaming/Typora/typora-user-images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230809214530.jpg?raw=true)
 
 成功点亮第一个灯
 
@@ -88,4 +88,4 @@ void main(){
 }
 ```
 
-<img src="C:\Users\chenzhengqing\Desktop\jkdzhx-51SingleChip\C\Users\chenzhengqing\AppData\Roaming\Typora\typora-user-images\微信图片_20230809214708.jpg" alt="微信图片_20230809214708" style="zoom:80%;" />
+https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/C/Users/chenzhengqing/AppData/Roaming/Typora/typora-user-images/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230809214708.jpg?raw=true
