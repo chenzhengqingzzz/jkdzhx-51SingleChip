@@ -145,6 +145,8 @@ void Delay500ms()		//@11.0592MHz
 }
 ```
 
+关于NOP函数的说明：https://blog.csdn.net/weixin_44643510/article/details/111401346
+
 完整代码文件：
 
 ```c
