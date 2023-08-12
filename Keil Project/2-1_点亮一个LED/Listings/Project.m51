@@ -1,4 +1,4 @@
-BL51 BANKED LINKER/LOCATER V6.22                                                        08/08/2023  23:38:33  PAGE 1
+BL51 BANKED LINKER/LOCATER V6.22                                                        08/12/2023  15:59:17  PAGE 1
 
 
 BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
@@ -51,17 +51,15 @@ SYMBOL TABLE OF MODULE:  .\Objects\Project (MAIN)
   D:00A0H         PUBLIC        P2
   C:000FH         PUBLIC        main
   -------         PROC          MAIN
+  C:000FH         LINE#         13
   C:000FH         LINE#         14
-  C:000FH         LINE#         15
-  C:000FH         LINE#         16
   C:0012H         LINE#         17
-  C:0012H         LINE#         18
-  C:0012H         LINE#         20
+  C:0012H         LINE#         19
   -------         ENDPROC       MAIN
   -------         ENDMOD        MAIN
-BL51 BANKED LINKER/LOCATER V6.22                                                      08/08/2023  23:38:33  PAGE 2
-
-
 
 Program Size: data=9.0 xdata=0 code=20
+BL51 BANKED LINKER/LOCATER V6.22                                                      08/12/2023  15:59:17  PAGE 2
+
+
 LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
