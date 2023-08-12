@@ -1,0 +1,43 @@
+{
+  "name": "2-3_LED流水灯",
+  "type": "C51",
+  "dependenceList": [],
+  "srcDirs": [
+    "src"
+  ],
+  "outDir": "build",
+  "virtualFolder": {
+    "name": "<virtual_root>",
+    "files": [],
+    "folders": []
+  },
+  "miscInfo": {
+    "uid": "c6d96c7e875e5de628ec6de318dec3ac"
+  },
+  "targets": {
+    "Release": {
+      "excludeList": [],
+      "toolchain": "Keil_C51",
+      "compileConfig": {
+        "options": ""
+      },
+      "uploader": "Custom",
+      "uploadConfig": {
+        "bin": "",
+        "commandLine": "python ./tools/stcflash.py -p ${port} \"${hexFile}\"",
+        "eraseChipCommand": ""
+      },
+      "uploadConfigMap": {},
+      "custom_dep": {
+        "name": "default",
+        "incList": [],
+        "libList": [],
+        "sourceDirList": [],
+        "defineList": []
+      }
+    }
+  },
+  "version": "3.3",
+  "deviceName": null,
+  "packDir": null
+}
