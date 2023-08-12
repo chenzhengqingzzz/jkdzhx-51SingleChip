@@ -1,66 +1,57 @@
-/**
- * *********************************************
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-12 16:04:30
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-12 16:38:14
+ * @FilePath: \2-3_LED流水灯\src\main.c
+ * @Description: 8个LED灯逐个点亮实现流水灯的效果
  * 
- * 8051 blink demo
- * 
- * PIN: P11
- * 
- * *********************************************
-*/
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
 
-#include "REG52.H"
+#include <REG52.H>
+#include <INTRINS.H> //定义nop函数的头文件
 
-typedef unsigned char uint8_t;
-typedef unsigned int uint16_t;
-typedef unsigned long uint32_t;
 
-typedef signed char int8_t;
-typedef signed int int16_t;
-typedef signed long int32_t;
-
-#define EXT0_VECTOR 0  /* 0x03 external interrupt 0 */
-#define TIM0_VECTOR 1  /* 0x0b timer 0 */
-#define EXT1_VECTOR 2  /* 0x13 external interrupt 1 */
-#define TIM1_VECTOR 3  /* 0x1b timer 1 */
-#define UART0_VECTOR 4 /* 0x23 serial port 0 */
-
-// LED pin define
-sbit LED = P1 ^ 1;
-
-void main()
+void Delay500ms()		//@11.0592MHz
 {
-    // set T0 1ms
-    TMOD = 0x01;
-    TH0 = 0xFC;
-    TL0 = 0x18;
+	unsigned char i, j, k;
 
-    // enable interrupt
-    EA = 1;
-    ET0 = 1;
-
-    // led pin init
-    LED = 1;
-
-    // launch T0
-    TR0 = 1;
-
-    while (1)
-    {
-        // TODO
-    }
+	_nop_(); //
+	i = 4;
+	j = 129;
+	k = 119;
+	do
+	{
+		do
+		{
+			while (--k);
+		} while (--j);
+	} while (--i);
 }
 
-void TIM0_Handler() interrupt TIM0_VECTOR
-{
-    static uint16_t count;
 
-    TH0 = 0xFC;
-    TL0 = 0x18;
+ void main(){
 
-    // 500 ms
-    if (++count >= 500)
-    {
-        count = 0;
-        LED = !LED;
+
+    while (1){
+        P2 = 0xFE; // 1111 1110
+        Delay500ms();
+        P2 = 0xFD; // 1111 1101
+        Delay500ms();
+        P2 = 0xFB; // 1111 1011
+        Delay500ms();
+        P2 = 0xF7; // 1111 0111
+        Delay500ms();
+        P2 = 0xEF; // 1110 1111
+        Delay500ms();
+        P2 = 0xDF; // 1101 1111
+        Delay500ms();
+        P2 = 0xBF; // 1011 1111
+        Delay500ms();
+        P2 = 0x7F; // 0111 1111
+        Delay500ms();
     }
-}
+    
+ }
