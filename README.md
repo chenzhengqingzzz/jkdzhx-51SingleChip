@@ -398,3 +398,113 @@ void main()
 ```
 
 这样就可以独立实现我们自定义切换到下一个灯的延迟时间了
+
+## 3-1 独立按键控制LED亮灭
+
+首先我们要知道：
+
+	* 单片机通电的时候，所有IO口默认都是高电平的1状态
+	* 寄存器每写一个值，就会送到IO口上，这也同样会检测IO口的电平返回值读出来
+	* 我们这里要实现的是，按下按键，寄存器应该读出低电平的0，松开时返回的值应该是高电平的1，这样就可以实现按键控制我们的LED灯电平了
+
+我们在前面`P2 = 0xFE`语句其实是控制一整个寄存器实现的，寄存器8位为一组，如果我们控制一整个P2寄存器，则需要同时给8个位复制，但是我们这里只想操作具体位的LED灯，有什么办法实现呢？
+
+这个时候我们可以打开头文件，找到对应寄存器的声明了，我这里的REG52.H头文件没有对P2寄存器和具体的位进行声明，我们这里可以使用sbit关键字来模仿其他寄存器进行位声明：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/QQ%E6%88%AA%E5%9B%BE20230813154814.png?raw=true)
+
+`REG52.H`
+
+这里对应P2_0是第一个灯，以此类推
+
+```H
+/*  bit of P2Register_declare_by_czqzzzzzz 2023.8.13  */
+sbit P2_0 = P2^0; // 0xA0;
+sbit P2_1 = P2^1; // 0xA1;
+sbit P2_2 = P2^2; // 0xA2;
+sbit P2_3 = P2^3; // 0xA3;
+sbit P2_4 = P2^4; // 0xA4;
+sbit P2_5 = P2^5; // 0xA5;
+sbit P2_6 = P2^6; // 0xA6;
+sbit P2_7 = P2^7; // 0xA7;
+```
+
+然后我们就是需要实现P2下的0位，按下实现低电平（0），松开实现高电（1）
+
+`main.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-13 13:45:12
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-13 15:53:12
+ * @FilePath: \3-1_独立按键控制LED亮灭\src\main.c
+ * @Description: 通过开发板的四个按键控制LED亮灭——按下和松开的交互
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include <REG52.H>
+
+void main(){
+    // 控制D2灯亮
+    P2_1 = 0;
+    // while(1){
+        // 按键接通则亮灯
+        if(TXD == 0){
+            P2_0 = 0;
+        }else{
+            // 按键断开则灭灯
+            P2_0 = 1;
+        }
+        
+    // }
+    
+}
+```
+
+通过查阅开发板原理图，发现K1这个按键对应的位数是头文件定义的TXD位，所以我们可以直接操作这个按键对应的位
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/QQ%E6%88%AA%E5%9B%BE20230813155824.png?raw=true)
+
+实现效果：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230813155958.jpg?raw=true)
+
+> 由于单片机自身工作方式就是循环扫描，不是执行一次就结束，而是反复循环执行，所以这里我就没有直接写while循环也可以实现随时监听我们的按钮 ，如果写while(1)死循环的时候，此时程序会一直在循环里，无法重复执行第二次的代码（类似于外面包了个单片机大循环，里面有一个while的死循环感觉）
+
+如果在别的地方写死循环，则我们对按键的操作则会无效了
+
+`main.c`
+
+```c
+#include <REG52.H>
+
+void main(){
+
+
+    while (1)
+    {
+        /* code */
+    }
+        // 控制D2灯亮
+    P2_1 = 0;
+    // 通过查阅开发板原理图，发现K1这个按键对应的位数是头文件定义的TXD位，所以我们可以直接操作这个按键对应的位
+    // 按键接通则亮灯
+    if(TXD == 0){
+        P2_0 = 0;
+    }else{
+        // 按键断开则灭灯
+        P2_0 = 1;
+    }
+
+           
+}
+```
+
+这里我们写了一个死循环，里面什么也没做，表明程序会在这个死循环里一直执行，循环之外的操作我们无法生效了
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230813160608.jpg?raw=true)
+
+这里可以发现我们后续对LED灯的操作无法生效了
