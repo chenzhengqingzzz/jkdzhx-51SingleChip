@@ -530,3 +530,83 @@ void main(){
 ~0001 1000            		//运算结果：1110 0111
 ```
 
+## 3-2 独立按键控制LED灯状态（模拟日常开关灯）
+
+我们这一节需要实现完成一个按钮的键程再改变LED灯的亮灭（很像日常开关灯）
+
+首先了解一下**按键的抖动**
+
+	* 对于我们的机械开关，当机械触点断开、闭合时，由于机械触点的弹性作用，一个开关在闭合的时候不会马上稳定地接通，相应的，在断开的时候也不会一下子就断开，所以在开关闭合以及断开的一瞬间会伴随着一连串的抖动
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/QQ%E6%88%AA%E5%9B%BE20230816230623.png?raw=true)
+
+比如日常的开关灯，我们肉眼无法观察到这种抖动，但单片机的执行速率是MHz级别的，会有明显影响，我们如何消除这个影响呢？
+
+ * 硬件消抖：通过电=电路过滤掉
+ * 软件处理：按键按下的时候延时发生延时，松手的时候也发生延时
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-16 22:17:02
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-16 23:09:25
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\3-2_独立按键控制LED状态\src\main.c
+ * @Description: 通过写延迟函数的方式来解决物理按键的抖动问题，并且模拟了键程开关状态
+ *
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include <REG52.H>
+
+/**
+ * @description: 延时函数
+ * @param {unsigned int} time 延时时间
+ * @return {*}
+ */
+void Delay(unsigned int time) //@11.0592MHz
+{
+    unsigned char i, j;
+
+    while (time) {
+        i = 2;
+        j = 199;
+        do {
+            while (--j)
+                ;
+        } while (--i);
+        time--;
+    }
+}
+
+void main()
+{
+    while (1) {
+		// 当K1按键按下时
+		if (TXD == 0)
+		{
+			// 过滤按下抖动
+			Delay(20);
+			// 按下代表低电平，让它一直循环，一松手就变为高电平
+			// 这里主要是检测你松没松手 0代表按下状态，变为1就代表松手
+			while (TXD == 0);
+			// 过滤松手抖动
+			Delay(20);
+			// 这边可以理解成一个完整的键程（按下到松开）
+			// --------------------------------------
+
+			// 实现按完一个键程操作灯的亮灭
+			P2_0 = ~P2_0;
+		}
+		
+    }
+}
+```
+
+按下K1按键不亮：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230816231346.jpg?raw=true)
+
+松开K1按键后才亮：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230816231351.jpg?raw=true)
