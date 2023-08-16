@@ -2,18 +2,18 @@
  * @Author: czqczqzzzzzz(czq)
  * @Email: tenchenzhengqing@qq.com
  * @Date: 2023-08-09 22:15:17
- * @LastEditors: ³ÂÕıÇå-win
- * @LastEditTime: 2023-08-09 22:47:00
- * @FilePath: \2-2_LEDÉÁË¸\src\main.c
- * @Description: ÖÜÆÚĞÔµÄÈÃLEDµÆÉÁË¸
+ * @LastEditors: é™ˆæ­£æ¸…-win
+ * @LastEditTime: 2023-08-16 22:29:20
+ * @FilePath: \2-2_LEDé—ªçƒ\src\main.c
+ * @Description: å‘¨æœŸæ€§çš„è®©LEDç¯é—ªçƒ
  * 
  * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
  */
 #include <REG52.H>
-#include <INTRINS.H> //¶¨Òånopº¯ÊıµÄÍ·ÎÄ¼ş
+#include <INTRINS.H> //å®šä¹‰nopå‡½æ•°çš„å¤´æ–‡ä»¶
 
 /**
- * @description: ÑÓÊ±Îª500msµÄ×Óº¯Êı£¬¼ÆÊıÒÔ´ïµ½ÑÓÊ±µÄÄ¿µÄ
+ * @description: å»¶æ—¶ä¸º500msçš„å­å‡½æ•°ï¼Œè®¡æ•°ä»¥è¾¾åˆ°å»¶æ—¶çš„ç›®çš„
  * @return {*}
  */
 void Delay500ms()		//@11.0592MHz
@@ -38,9 +38,9 @@ void Delay500ms()		//@11.0592MHz
 
 
     while (1){
-        P2 = 0xFE; // µãÁÁ1ºÅLEDµÆ
+        P2 = 0xFE; // ç‚¹äº®1å·LEDç¯
         Delay500ms();
-        P2 = 0xFF; // Ï¨ÃğËùÓĞµÆ
+        P2 = 0xFF; // ç†„ç­æ‰€æœ‰ç¯
         Delay500ms();
     }
     

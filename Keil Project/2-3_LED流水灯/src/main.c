@@ -2,16 +2,16 @@
  * @Author: czqczqzzzzzz(czq)
  * @Email: tenchenzhengqing@qq.com
  * @Date: 2023-08-12 16:04:30
- * @LastEditors: ³ÂÕıÇå-win
- * @LastEditTime: 2023-08-12 16:38:14
- * @FilePath: \2-3_LEDÁ÷Ë®µÆ\src\main.c
- * @Description: 8¸öLEDµÆÖğ¸öµãÁÁÊµÏÖÁ÷Ë®µÆµÄĞ§¹û
+ * @LastEditors: é™ˆæ­£æ¸…-win
+ * @LastEditTime: 2023-08-16 22:28:55
+ * @FilePath: \2-3_LEDæµæ°´ç¯\src\main.c
+ * @Description: 8ä¸ªLEDç¯é€ä¸ªç‚¹äº®å®ç°æµæ°´ç¯çš„æ•ˆæœ
  * 
  * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
  */
 
 #include <REG52.H>
-#include <INTRINS.H> //¶¨Òånopº¯ÊıµÄÍ·ÎÄ¼ş
+#include <INTRINS.H> //å®šä¹‰nopå‡½æ•°çš„å¤´æ–‡ä»¶
 
 
 void Delay500ms()		//@11.0592MHz

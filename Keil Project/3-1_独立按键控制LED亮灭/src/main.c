@@ -2,24 +2,24 @@
  * @Author: czqczqzzzzzz(czq)
  * @Email: tenchenzhengqing@qq.com
  * @Date: 2023-08-13 13:45:12
- * @LastEditors: ³ÂÕıÇå-win
- * @LastEditTime: 2023-08-13 16:08:40
- * @FilePath: \3-1_¶ÀÁ¢°´¼ü¿ØÖÆLEDÁÁÃğ\src\main.c
- * @Description: Í¨¹ı¿ª·¢°åµÄËÄ¸ö°´¼ü¿ØÖÆLEDÁÁÃğ¡ª¡ª°´ÏÂºÍËÉ¿ªµÄ½»»¥
+ * @LastEditors: é™ˆæ­£æ¸…-win
+ * @LastEditTime: 2023-08-16 22:25:44
+ * @FilePath: \3-1_ç‹¬ç«‹æŒ‰é”®æ§åˆ¶LEDäº®ç­\src\main.c
+ * @Description: é€šè¿‡å¼€å‘æ¿çš„å››ä¸ªæŒ‰é”®æ§åˆ¶LEDäº®ç­â€”â€”æŒ‰ä¸‹å’Œæ¾å¼€çš„äº¤äº’
  * 
  * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
  */
 #include <REG52.H>
 
 void main(){
-    // ¿ØÖÆD2µÆÁÁ
+    // æ§åˆ¶D2ç¯äº®
     P2_1 = 0;
     // while(1){
-        // °´¼ü½ÓÍ¨ÔòÁÁµÆ
+        // æŒ‰é”®æ¥é€šåˆ™äº®ç¯
         if(TXD == 0){
             P2_0 = 0;
         }else{
-            // °´¼ü¶Ï¿ªÔòÃğµÆ
+            // æŒ‰é”®æ–­å¼€åˆ™ç­ç¯
             P2_0 = 1;
         }
         
