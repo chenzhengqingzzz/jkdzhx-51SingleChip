@@ -610,3 +610,99 @@ void main()
 松开K1按键后才亮：
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230816231351.jpg?raw=true)
+
+## 3-3 独立按键控制LED显示二进制
+
+我们参照上一节代码，中间进行检查：、
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-16 23:18:50
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-16 23:45:39
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\3-3_独立按键控制LED显示二进制\src\main.c
+ * @Description: 实现按键控制LED显示二进制，亮代表0，灭代表1
+ *
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include "REG52.H"
+
+/**
+ * @description: 延时函数
+ * @param {unsigned int} time 延时时间
+ * @return {*}
+ */
+void Delay(unsigned int time) //@11.0592MHz
+{
+    unsigned char i, j;
+
+    while (time) {
+        i = 2;
+        j = 199;
+        do {
+            while (--j);
+        } while (--i);
+        time--;
+    }
+}
+
+void main()
+{
+    unsigned char LEDNum = 0;
+    while (1)
+    {
+        if (TXD == 0)
+        {
+            Delay(20);
+            while (TXD == 0);
+            Delay(20);
+
+            // P2和P2_1不同，前者是8个位的总线，后者是1个位
+            // P2++; // 直接加会导致溢出 0000 0000
+        }
+        
+    }
+    
+}
+```
+
+这个时候会发现LED灯的状态和我们需求刚好相反，**该亮的灭，该灭的亮**
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230816235214.jpg?raw=true)
+
+如果我们在++语句下面加`P2 = ~P2`，则会发现**灯都不亮**
+
+P2上电默认为1111 1111 自加取反后变成1111 1111 每次循环总是会变成1111 1111，所以就会有问题
+
+我们的思路是装一个变量，让这个变量自加后再取反就可以了
+
+调整之后：
+
+`main.c`
+
+```c
+void main()
+{
+    unsigned char LEDNum = 0;  // 无符号字符型为0~255的8位二进制数据，表示一个寄存器
+    while (1)
+    {
+        if (TXD == 0)
+        {
+            Delay(20);
+            while (TXD == 0);
+            Delay(20);
+
+            LEDNum++; // 刚开始是0000 0001
+            P2 = ~LEDNum; // 取反后就是1111 1110
+        }
+        
+    }
+    
+}
+```
+
+这样就可以实现我们的效果了
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230816235611.jpg?raw=true)
