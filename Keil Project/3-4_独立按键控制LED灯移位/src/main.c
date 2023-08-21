@@ -3,7 +3,7 @@
  * @Email: tenchenzhengqing@qq.com
  * @Date: 2023-08-21 22:24:36
  * @LastEditors: 陈正清-win
- * @LastEditTime: 2023-08-21 23:47:14
+ * @LastEditTime: 2023-08-22 00:22:09
  * @FilePath: \jkdzhx-51SingleChip\Keil Project\3-4_独立按键控制LED灯移位\src\main.c
  * @Description: 独立按键控制LED灯移位，这边右移是减少左移位数来实现的
  * 
@@ -55,26 +55,26 @@ void main(){
             }
 
 
-            P2 = ~(0x01 << ledNum);
+            P2 = ~(0x01 << ledNum); // 这是一个反向逻辑 给1是灭，0是亮，所以应该取反
             
             
         }
 
-        // 按K2按键的情况
+        // 按K2按键的情况 这边我们的逻辑是减少左移ledNum的位数 实现相对右移
         if (RXD == 0)
         {
             Delay(20);
             while (RXD == 0);
             Delay(20);
 
-            if (ledNum == 0)
+            if (ledNum == 0) // 也需要越界判断，之前定义的是无符号char型，减到0再往下会有越界
             {
-                ledNum = 7;
+                ledNum = 7; // 先判断，才操作，如果已经为0，那么赋给最大值7
             }else{
-                ledNum--;
+                ledNum--; // 不是真正的往右移，而是相对于前面的少往右移一位，相当于左移
             }
 
-            P2 = ~(0x01 << ledNum);
+            P2 = ~(0x01 << ledNum); 
             
             
         }

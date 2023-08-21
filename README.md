@@ -706,3 +706,175 @@ void main()
 这样就可以实现我们的效果了
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230816235611.jpg?raw=true)
+
+## 3-4 独立按键控制LED灯移位
+
+想象一下我们需要控制LED灯移位的逻辑：
+
+```
+0000 0001 -> 0000 0010 -> 0000 00100 -> 0000 1000 -> 0001 0000 -> 0010 0000 -> 0100 0000 -> 1000 0000
+```
+
+
+
+使用位运算符实现相关：
+
+```
+0000 0001 0x01<<0
+
+0000 0010 0x01<<1
+
+0000 0100 0x01<<2
+
+0000 1000 0x01<<3
+
+0001 0000 0x01<<4
+
+0010 0000 0x01<<5
+
+0100 0000 0x01<<6
+
+1000 0000 0x01<<7 （这些都是正逻辑，1为亮，0为灭，一会需要取反）
+
+```
+
+可以让0-7定义为LEDNum，每按一下+1，移到最左边时再回去（if）
+
+
+
+`main.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-21 22:24:36
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-21 23:47:14
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\3-4_独立按键控制LED灯移位\src\main.c
+ * @Description: 独立按键控制LED灯移位，这边右移是减少左移位数来实现的
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include <REG52.H>
+
+/**
+ * @description: 延时函数
+ * @param {unsigned int} time 延时时间
+ * @return {*}
+ */
+void Delay(unsigned int time) //@11.0592MHz
+{
+    unsigned char i, j;
+
+    while (time) {
+        i = 2;
+        j = 199;
+        do {
+            while (--j);
+        } while (--i);
+        time--;
+    }
+}
+
+unsigned char ledNum = 0;
+void main(){
+    
+    
+    // 通过while循环将程序控制在循环体内，而不是main的循环体，不然就会一直初始化变量
+    while(1){
+        
+        // 按K1按键
+        if (TXD == 0)
+        
+        {
+            Delay(20);
+            while(TXD == 0);
+            Delay(20);
+            
+            // P2 = ~0x01;
+            // 越界判断
+            ledNum++;
+            if (ledNum == 8)
+            {
+                ledNum = 0;
+            }
+
+
+            P2 = ~(0x01 << ledNum); // 这是一个反向逻辑 给1是灭，0是亮，所以应该取反
+            
+            
+        }
+             
+    }
+        
+
+}
+```
+
+发现有一个小问题：按第一下的时候直接是D2亮而不是D1亮，给P2赋初始值`P2=~0x01;`,写入主函数
+
+```c
+void main()
+{
+    P2=~0x01;
+	while(1)
+	{
+		if(P3_1==0)
+		{
+			Delay(20);
+			while(P3_1==0);
+			Delay(20);
+			
+			LEDNum++;
+			if(LEDNum>=8)     // if语句如果只有一句，可以不用{}
+				LEDNum=0;
+			P2=~(0x01<<LEDNum) // P2是一个反向逻辑，给1是灭，给0是亮，所以取反
+		}
+	}
+}
+
+```
+
+
+
+另外一个问题：如果有两个按键 一个控制左移灯，另一个控制右移灯呢？
+
+我们要知道：
+
+	* 这个是相对的概念，所谓的右移不是真正的往右移，而是相对于前面少往右一以为，这样子我们看到了就相当于左移了
+	* 比如，本来是左移五位，按下K2后变成了左移4位，相当于右移了一位
+	* 这里的左移右移是以 `1111 1110 ---> 1111 1101`
+
+
+
+K2按键补充：
+
+```c
+        // 按K2按键的情况 这边我们的逻辑是减少左移ledNum的位数 实现相对右移
+        if (RXD == 0)
+        {
+            Delay(20);
+            while (RXD == 0);
+            Delay(20);
+
+            if (ledNum == 0) // 也需要越界判断，之前定义的是无符号char型，减到0再往下会有越界
+            {
+                ledNum = 7; // 先判断，才操作，如果已经为0，那么赋给最大值7
+            }else{
+                ledNum--; // 不是真正的往右移，而是相对于前面的少往右移一位，相当于左移
+            }
+
+            P2 = ~(0x01 << ledNum); 
+            
+            
+        }
+```
+
+实现效果：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230822002344.jpg?raw=true)
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230822002352.jpg?raw=true)
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230822002358.jpg?raw=true)
