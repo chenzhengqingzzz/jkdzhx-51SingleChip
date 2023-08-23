@@ -878,3 +878,64 @@ K2按键补充：
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230822002352.jpg?raw=true)
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230822002358.jpg?raw=true)
+
+## 4-1 静态数码管显示
+
+首先我们来了解一下8位数码管：
+
+	* LED数码管：数码管是一种简单且廉价的显示器，由多个发光二极管封装在一起组成“8”字型器件
+
+![image-20220807162302252](https://img-blog.csdnimg.cn/img_convert/a5a19c8f0c015fe66e36ad8321472e28.png)
+
+1位数码管的连接管脚图：
+
+![image-20220807162541878](https://img-blog.csdnimg.cn/img_convert/c5defdda9b932f6fc81c4c3978c0592c.png)
+
+在这幅图里，A~G和一个字节的八位相对应，这样看虽然有点杂乱，但是每个引脚引出都是遵循“就近原则”的
+
+
+
+举例：我们要在数码管显示数字”6“
+
+​	那我们需要把AFEDCG段点亮：
+
+		* 上面的共阴极接法图中，我们规定3,8端接地，所以我们要在A~DP段输入高电平才能连通（产生电势差），数码管段才会亮，所以输入的段码应该是：10111110，这8个数据发送给单片机的IO口，即可显示“6”
+		* 在对应共阳极接法图中，我们规定3,8端接VCC电源，然后在A~DP段输入01000001（和共阴极的段码相反）
+
+
+
+四位一体数码管（四个大公共端引出，其余字母相同的管子连在一块，比如所有数码管的A段连在一块，B段连在一块：
+
+![image-20220807163717254](https://img-blog.csdnimg.cn/img_convert/8dae135bf0eed5abd7c923655f48105c.png)
+
+
+
+接下来我们看一看和数码管组所连接的两个译码器：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/QQ%E6%88%AA%E5%9B%BE20230823231932.png?raw=true)
+
+首先我们看上面的138译码器：
+
+![](https://i0.hdslb.com/bfs/note/95b3ac66b620d7fc55508b6db6a9cce37c9c952b.png@690w_!web-note.avif)
+
+左上角的输入口ABC是从低到高位排下来的，我们正常应该按照CBA来读
+
+左下角是使能端的连接，目的是让它能工作，给100就可以让这个芯片工作了（了解就好，实际开发不用管）
+
+右边的是控制输出的8个口，分别位选口连接着每一个LED灯，它们都是共阴极的连接
+
+
+
+通过给CBA三个输入端口二进制数字0和1来选择转换二进制之后的输出端口（转换成数字几久控制Y几），每个Y头上的“—”这一横是代表低电平有效（即给0）：
+
+![](https://i0.hdslb.com/bfs/note/7bd12860d3ff60816bdd4b3768b553d59a97d1f7.png@690w_!web-note.avif)
+
+
+
+245这个译码器的作用是双向缓冲，由于低电平驱动就会让电路的驱动效果更好，例如我们在做LED亮灯的时候，使用的是低电平驱动，灯会比高电平驱动更亮一些，所以就会这样来一个缓冲（我们就理解为直接连通就好）（图标记的位置可能和A2开发板不一样，但引脚和原理是一样的）
+
+![](https://i0.hdslb.com/bfs/note/8d717139f9d4cac41e90abde2f51d97b70c29ff7.png@690w_!web-note.avif)
+
+​	CC2是一个滤波电容，它用来过滤干扰，稳定电源，确定电路的稳定性，提高电路工作性能
+
+​	R4是一组排阻，它限流防止电流过大
