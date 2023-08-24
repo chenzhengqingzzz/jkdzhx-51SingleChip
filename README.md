@@ -939,3 +939,208 @@ K2按键补充：
 ​	CC2是一个滤波电容，它用来过滤干扰，稳定电源，确定电路的稳定性，提高电路工作性能
 
 ​	R4是一组排阻，它限流防止电流过大
+
+
+
+译码器左上角是位选端，遵循从下到上的CBA读取
+
+* 第三位显示6，74138对应于LED6是Y5，则P24-P22输入101
+
+![](https://i0.hdslb.com/bfs/note/891b3b9e3d08afa2395269455e7000a7e4ccf67c.png@690w_!web-note.avif)
+
+ 我们的数码管选择点亮也是从下到上（高位到低位）
+
+* 下面P07-P00对应是0111 1101对应十六进制数为7D
+
+![](https://i0.hdslb.com/bfs/note/c54ce7170dcac9a817014d916755d19196caa6b7.png@690w_!web-note.avif)
+
+
+
+下面的代码则会实现点亮“6”的结果：
+
+![](https://i0.hdslb.com/bfs/note/924bc63eba765c234bb1050cb17a50602475f654.png@558w_!web-note.avif)
+
+
+
+然后提一下C语言的数组，和之前学的JS大差不差：
+
+![](https://i0.hdslb.com/bfs/note/94e2c8bae6c290f4c5c73b39d8df8ebee23b7765.png@690w_!web-note.avif)
+
+我们如果需要在某一个数码管显示某一个数字，我们最好是直接封装函数，在主函数直接调用就好了 所以有了这个思路：
+
+`main.c`
+
+```c
+// 存放着所有数码管的段数数组，由从上到下数（高位到低位）出的二进制转化为十进制，最后的0x00是什么都不显示
+unsigned char NixieTable[] = {
+    0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x00
+};
+
+/**
+ * @description: 控制数码管显示封装的函数
+ * @param {unsigned char} lotationSelect 左上角位选端，选中从左到右第几个数码管
+ * @param {unsigned char} displayNum 点亮的段数
+ * @return {*}
+ */
+void NixieControl(unsigned char lotationSelect, unsigned char displayNum){
+    switch (lotationSelect)
+    {
+    case 1:
+        // 对应的是Y7：
+        P2_4 = 1; P2_3 = 1; P2_2 = 1;
+        break;
+    case 2:
+        // 对应的是Y6
+        P2_4 = 1; P2_3 = 1; P2_2 = 0;
+        break;
+    case 3:
+        // Y5
+        P2_4 = 1; P2_3 = 0; P2_2 = 1;
+        break;
+    case 4:
+        // Y4
+        P2_4 = 1; P2_3 = 0; P2_2 = 0;
+        break;
+    case 5:
+        // Y3
+        P2_4 = 0; P2_3 = 1; P2_2 = 1;
+        break;
+    case 6:
+        // Y2
+        P2_4 = 0; P2_3 = 1; P2_2 = 0;
+        break;
+    case 7:
+        // Y1
+        P2_4 = 0; P2_3 = 0; P2_2 = 1;
+        break;
+    case 8:
+        // Y0
+        P2_4 = 0; P2_3 = 0; P2_2 = 0;
+        break;
+    }
+    P0 = NixieTable[displayNum];
+    
+
+}
+```
+
+这样我们只需在main函数调用：
+
+`main.c`
+
+```c
+void main(){
+
+
+
+    // 直接调用函数点亮
+    NixieControl(6, 1);
+    
+    //这个死循环需要写上，不然就会重复执行函数，造成灯暗、无法正确显示的现象
+    while (1)
+    {
+        /* code */
+    }
+    
+        
+}
+```
+
+这里是想在第6个数码管点亮1这个数字，所以我们传了6和1
+
+实现效果：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230825001303.jpg?raw=true)
+
+附上完整代码：
+
+`main.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-24 23:06:56
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-25 00:07:31
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\4-1_静态数码管显示\src\main.c
+ * @Description: 调用封装的函数实现选择数码管点亮想要的数字
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include "REG52.H"
+
+
+// 存放着所有数码管的段数数组，由从上到下数（高位到低位）出的二进制转化为十进制，最后的0x00是什么都不显示
+unsigned char NixieTable[] = {
+    0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x00
+};
+
+/**
+ * @description: 控制数码管显示封装的函数
+ * @param {unsigned char} lotationSelect 左上角位选端，选中从左到右第几个数码管
+ * @param {unsigned char} displayNum 点亮的段数
+ * @return {*}
+ */
+void NixieControl(unsigned char lotationSelect, unsigned char displayNum){
+    switch (lotationSelect)
+    {
+    case 1:
+        // 对应的是Y7：
+        P2_4 = 1; P2_3 = 1; P2_2 = 1;
+        break;
+    case 2:
+        // 对应的是Y6
+        P2_4 = 1; P2_3 = 1; P2_2 = 0;
+        break;
+    case 3:
+        // Y5
+        P2_4 = 1; P2_3 = 0; P2_2 = 1;
+        break;
+    case 4:
+        // Y4
+        P2_4 = 1; P2_3 = 0; P2_2 = 0;
+        break;
+    case 5:
+        // Y3
+        P2_4 = 0; P2_3 = 1; P2_2 = 1;
+        break;
+    case 6:
+        // Y2
+        P2_4 = 0; P2_3 = 1; P2_2 = 0;
+        break;
+    case 7:
+        // Y1
+        P2_4 = 0; P2_3 = 0; P2_2 = 1;
+        break;
+    case 8:
+        // Y0
+        P2_4 = 0; P2_3 = 0; P2_2 = 0;
+        break;
+    }
+    P0 = NixieTable[displayNum];
+    
+
+}
+
+
+void main(){
+
+
+
+    // 直接调用函数点亮
+    NixieControl(6, 1);
+    
+    //这个死循环需要写上，不然就会重复执行函数，造成灯暗、无法正确显示的现象
+    while (1)
+    {
+        /* code */
+    }
+    
+        
+}
+
+
+
+```
+
