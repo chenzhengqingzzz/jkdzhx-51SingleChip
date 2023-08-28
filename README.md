@@ -1204,7 +1204,7 @@ void main(){
 
 如果我们不进行延时，则会发现此时位置显示有点错乱
 
-![]()
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230828235055.jpg?raw=true)
 
 这个问题来源于数码管的常见问题，我们需要加一段**消影代码**
 
@@ -1390,4 +1390,4 @@ void main(){
 
 实现效果：
 
-![]()
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230828235539.jpg?raw=true)
