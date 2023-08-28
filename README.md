@@ -1144,3 +1144,250 @@ void main(){
 
 ```
 
+## 4-2 动态数码管显示
+
+我们这一节实现多个位置显示不同的数字
+
+1. 动态数码管的原理就是不断的扫描，这就是一个循环的过程，所以我们可以先把`Nixie(2, 3)`放到while循环里，我们这边选择点亮第一个数码管为1，第二个数码管为2，第三个数码管为3
+
+2. 通用延时函数
+
+   ```c
+   /**
+    * @description: 延时函数
+    * @param {unsigned int} time 延时时间
+    * @return {*}
+    */
+   void Delay(unsigned int time) //@11.0592MHz
+   {
+       unsigned char i, j;
+   
+       while (time) {
+           i = 2;
+           j = 199;
+           do {
+               while (--j);
+           } while (--i);
+           time--;
+       }
+   }
+   ```
+
+   我们通过延时函数，每一次控制数码管的时候都进行延时，当我们调用间隔为200的时候，则会发现是每隔200ms两下一个数字，如此循环往复
+
+3. 在main函数的循环中进行延时调用，可以消除残影
+
+```c
+void main(){
+
+
+
+    
+    
+    // 这个死循环需要写上，不然就会重复执行函数，造成灯暗、无法正确显示的现象
+    // 由于动态数码管显示的实现原理是重复扫描过程，骗过人眼，所以我们应该吧点亮数码管放到循环里
+    while (1)
+    {
+        // 直接调用函数点亮
+        NixieControl(1, 1);
+        // 需要加入延时函数，如果是无延迟的话，数码管会有残影
+        // Delay(20);
+        NixieControl(2, 2);
+        // Delay(20);
+        NixieControl(3, 3);
+        // Delay(20);
+    }
+    
+        
+}
+```
+
+如果我们不进行延时，则会发现此时位置显示有点错乱
+
+![]()
+
+这个问题来源于数码管的常见问题，我们需要加一段**消影代码**
+
+> 位选 **段选 位选** 段选 位选 段选，在下一位进行位选，上一位的段选会窜到下一位（二者紧挨着而且下一位的段选还没有到）如何避免这个问题呢？
+
+4. 还有另一种方法，我们可以直接在数码管函数里写入延时逻辑，在段选之后加入清零，形成 位选 段选 清零 位选 段选 清零，即使窜到下一位也是清零窜到下一位，优化子函数
+
+```c
+/**
+ * @description: 控制数码管显示封装的函数
+ * @param {unsigned char} lotationSelect 左上角位选端，选中从左到右第几个数码管
+ * @param {unsigned char} displayNum 点亮的段数
+ * @return {*}
+ */
+void NixieControl(unsigned char lotationSelect, unsigned char displayNum){
+    switch (lotationSelect)
+    {
+    case 1:
+        // 对应的是Y7：
+        P2_4 = 1; P2_3 = 1; P2_2 = 1;
+        break;
+    case 2:
+        // 对应的是Y6
+        P2_4 = 1; P2_3 = 1; P2_2 = 0;
+        break;
+    case 3:
+        // Y5
+        P2_4 = 1; P2_3 = 0; P2_2 = 1;
+        break;
+    case 4:
+        // Y4
+        P2_4 = 1; P2_3 = 0; P2_2 = 0;
+        break;
+    case 5:
+        // Y3
+        P2_4 = 0; P2_3 = 1; P2_2 = 1;
+        break;
+    case 6:
+        // Y2
+        P2_4 = 0; P2_3 = 1; P2_2 = 0;
+        break;
+    case 7:
+        // Y1
+        P2_4 = 0; P2_3 = 0; P2_2 = 1;
+        break;
+    case 8:
+        // Y0
+        P2_4 = 0; P2_3 = 0; P2_2 = 0;
+        break;
+    }
+    P0 = NixieTable[displayNum];
+    Delay(1);
+    // 由于数码管是直接使用单片机扫描，会有串口冲突，所以我们在每次对数码管进行修改之后，将段数全部熄灭
+    P0 = 0x00;
+    
+
+}
+```
+
+
+
+如此，数码管就可以正常在我们眼里显示123了 完整代码：
+
+`main.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-08-28 22:59:27
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-08-28 23:13:09
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\4-2_动态数码管显示\src\main.c
+ * @Description: 动态数码管显示
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+#include "REG52.H"
+
+
+// 存放着所有数码管的段数数组，由从上到下数（高位到低位）出的二进制转化为十进制，最后的0x00是什么都不显示
+unsigned char NixieTable[] = {
+    0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x00
+};
+
+/**
+ * @description: 延时函数
+ * @param {unsigned int} time 延时时间
+ * @return {*}
+ */
+void Delay(unsigned int time) //@11.0592MHz
+{
+    unsigned char i, j;
+
+    while (time) {
+        i = 2;
+        j = 199;
+        do {
+            while (--j);
+        } while (--i);
+        time--;
+    }
+}
+
+/**
+ * @description: 控制数码管显示封装的函数
+ * @param {unsigned char} lotationSelect 左上角位选端，选中从左到右第几个数码管
+ * @param {unsigned char} displayNum 点亮的段数
+ * @return {*}
+ */
+void NixieControl(unsigned char lotationSelect, unsigned char displayNum){
+    switch (lotationSelect)
+    {
+    case 1:
+        // 对应的是Y7：
+        P2_4 = 1; P2_3 = 1; P2_2 = 1;
+        break;
+    case 2:
+        // 对应的是Y6
+        P2_4 = 1; P2_3 = 1; P2_2 = 0;
+        break;
+    case 3:
+        // Y5
+        P2_4 = 1; P2_3 = 0; P2_2 = 1;
+        break;
+    case 4:
+        // Y4
+        P2_4 = 1; P2_3 = 0; P2_2 = 0;
+        break;
+    case 5:
+        // Y3
+        P2_4 = 0; P2_3 = 1; P2_2 = 1;
+        break;
+    case 6:
+        // Y2
+        P2_4 = 0; P2_3 = 1; P2_2 = 0;
+        break;
+    case 7:
+        // Y1
+        P2_4 = 0; P2_3 = 0; P2_2 = 1;
+        break;
+    case 8:
+        // Y0
+        P2_4 = 0; P2_3 = 0; P2_2 = 0;
+        break;
+    }
+    P0 = NixieTable[displayNum];
+    Delay(1);
+    // 由于数码管是直接使用单片机扫描，会有串口冲突，所以我们在每次对数码管进行修改之后，将段数全部熄灭
+    P0 = 0x00;
+    
+
+}
+
+
+void main(){
+
+
+
+    
+    
+    // 这个死循环需要写上，不然就会重复执行函数，造成灯暗、无法正确显示的现象
+    // 由于动态数码管显示的实现原理是重复扫描过程，骗过人眼，所以我们应该吧点亮数码管放到循环里
+    while (1)
+    {
+        // 直接调用函数点亮
+        NixieControl(1, 1);
+        // 需要加入延时函数，如果是无延迟的话，数码管会有残影
+        // Delay(20);
+        NixieControl(2, 2);
+        // Delay(20);
+        NixieControl(3, 3);
+        // Delay(20);
+    }
+    
+        
+}
+
+
+
+```
+
+实现效果：
+
+![]()
