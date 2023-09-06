@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "regx52.h": "c",
-        "REGX52.H": "cpp"
+        "REGX52.H": "cpp",
+        "delay.h": "c"
     }
 }
