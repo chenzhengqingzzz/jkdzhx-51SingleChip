@@ -3,7 +3,7 @@
  * @Email: tenchenzhengqing@qq.com
  * @Date: 2023-08-28 22:59:27
  * @LastEditors: 陈正清-win
- * @LastEditTime: 2023-08-28 23:49:46
+ * @LastEditTime: 2023-09-07 00:23:58
  * @FilePath: \jkdzhx-51SingleChip\Keil Project\4-2_动态数码管显示\src\main.c
  * @Description: 动态数码管显示
  * 
@@ -80,9 +80,9 @@ void NixieControl(unsigned char lotationSelect, unsigned char displayNum){
         break;
     }
     P0 = NixieTable[displayNum];
-    // Delay(1);
+    Delay(1);
     // 由于数码管是直接使用单片机扫描，会有串口冲突，所以我们在每次对数码管进行修改之后，将段数全部熄灭
-    // P0 = 0x00;
+    P0 = 0x00;
     
 
 }
