@@ -1,0 +1,21 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "EIDE.SourceTree.AutoSearchIncludePath": true,
+        "EIDE.SourceTree.AutoSearchObjFile": true,
+        "C_Cpp.default.intelliSenseMode": "gcc-x86",
+        "files.autoGuessEncoding": false,
+        "files.encoding": "gbk",
+        "C_Cpp.default.cppStandard": "c++11",
+        "C_Cpp.default.cStandard": "c99",
+        "EIDE.ARM.Option.AutoGenerateRTE_Components": false,
+        "C_Cpp.errorSquiggles": "Disabled",
+        "files.associations": {
+            ".eideignore": "ignore"
+        }
+    }
+}
