@@ -1,1 +1,43 @@
-{"name":"5-1_模块化编程","type":"C51","mode":"Release","toolchain":"Keil_C51","uploader":"Custom","dependenceList":[{"groupName":"custom","depList":[{"name":"default","incList":[],"libList":[],"sourceDirList":[],"defineList":[]}]},{"groupName":"build-in","depList":[{"name":"default","incList":[],"libList":[],"sourceDirList":[],"defineList":[]},{"name":"toolchain","incList":[".\\..\\..\\..\\..\\..\\..\\..\\Keil\\C51\\C51\\INC"],"sourceDirList":[],"libList":[".\\..\\..\\..\\..\\..\\..\\..\\Keil\\C51\\C51\\LIB"],"defineList":["__UVISION_VERSION=526"]}]}],"compileConfig":{"options":""},"srcDirs":[".\\src"],"excludeList":[],"outDir":".\\build","uploadConfig":{"bin":"","commandLine":"python ./tools/stcflash.py -p ${port} \"${hexFile}\""},"virtualFolder":[],"miscInfo":{},"targets":{},"version":"2.0"}
+{
+  "name": "5-1_模块化编程",
+  "type": "C51",
+  "dependenceList": [],
+  "srcDirs": [
+    "src"
+  ],
+  "outDir": "build",
+  "virtualFolder": {
+    "name": "<virtual_root>",
+    "files": [],
+    "folders": []
+  },
+  "miscInfo": {
+    "uid": "df5c98be524c7ad2071b8ac23f16f07f"
+  },
+  "targets": {
+    "Release": {
+      "excludeList": [],
+      "toolchain": "Keil_C51",
+      "compileConfig": {
+        "options": ""
+      },
+      "uploader": "Custom",
+      "uploadConfig": {
+        "bin": "",
+        "commandLine": "python ./tools/stcflash.py -p ${port} \"${hexFile}\"",
+        "eraseChipCommand": ""
+      },
+      "uploadConfigMap": {},
+      "custom_dep": {
+        "name": "default",
+        "incList": [],
+        "libList": [],
+        "sourceDirList": [],
+        "defineList": []
+      }
+    }
+  },
+  "version": "3.3",
+  "deviceName": null,
+  "packDir": null
+}

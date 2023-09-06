@@ -7,15 +7,41 @@
     "settings": {
         "EIDE.SourceTree.AutoSearchIncludePath": true,
         "EIDE.SourceTree.AutoSearchObjFile": true,
-        "C_Cpp.default.intelliSenseMode": "gcc-x86",
         "files.autoGuessEncoding": false,
         "files.encoding": "gbk",
-        "C_Cpp.default.cppStandard": "c++11",
-        "C_Cpp.default.cStandard": "c99",
         "EIDE.ARM.Option.AutoGenerateRTE_Components": false,
-        "C_Cpp.errorSquiggles": "Disabled",
+        "C_Cpp.errorSquiggles": "disabled",
         "files.associations": {
-            ".eideignore": "ignore"
+            ".eideignore": "ignore",
+            "*.a51": "a51",
+            "*.h": "c",
+            "*.c": "c",
+            "*.hxx": "cpp",
+            "*.hpp": "cpp",
+            "*.c++": "cpp",
+            "*.cpp": "cpp",
+            "*.cxx": "cpp",
+            "*.cc": "cpp"
+        },
+        "C_Cpp.default.configurationProvider": "cl.eide",
+        "[yaml]": {
+            "editor.insertSpaces": true,
+            "editor.tabSize": 4,
+            "editor.autoIndent": "advanced"
         }
+    },
+    "extensions": {
+        "recommendations": [
+            "cl.eide",
+            "keroc.hex-fmt",
+            "xiaoyongdong.srecord",
+            "hars.cppsnippets",
+            "zixuanwang.linkerscript",
+            "redhat.vscode-yaml",
+            "IBM.output-colorizer",
+            "cschlosser.doxdocgen",
+            "ms-vscode.vscode-serial-monitor",
+            "cl.stm8-debug"
+        ]
     }
 }
