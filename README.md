@@ -1391,3 +1391,187 @@ void main(){
 实现效果：
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230828235539.jpg?raw=true)
+
+## 5-2 模块化编程
+
+* 传统方式编程：所有的函数均放在main.c中，如果我们使用的模块比较多，则我们一个文件内会有很多代码，不利于代码的组织和管理，而且很影响我们的编程思路
+* 模块化编程：**把各个模块的代码放在不同的.c文件中，在.h文件里提供外部可调用函数的声明**，其他.c文件想使用其中的代码时，只需要`#include "XXX.h"`就行。使用模块化编程可以极大提高代码的可读性、可维护性、可移植性等
+
+![image-20220809152503968](https://img-blog.csdnimg.cn/img_convert/6b0dd675a46e638fe288b036766c7da3.png)
+
+我们之前的Delay函数放在了main文件中，现在我们将Delay函数抽取出来实现模块化。Delay.c给主函数并不需要把所有的东西都包含进去，只需要把声明包含进去即可，**所以在.h文件中都是提供一个接口**
+
+![image-20220809153408055](https://img-blog.csdnimg.cn/img_convert/75b0bf726e2b3120f76e600bc25f0a72.png)
+
+这些都是叫C预编译：
+
+	* C语言的预编译以#开头，作用是真正的编译开始前，对代码做一些处理
+
+![image-20220809153804516](https://img-blog.csdnimg.cn/img_convert/ce39bab804774ca146fb0a50b5d726e8.png)
+
+	* 此外还有**\#ifdef,#if,#else,#elif,#undef**等
+	* 其实`#ifdef`等语句是对程序某些部分是否编译进行选择
+
+然后我们把Delay函数、NixieControl函数进行抽取和封装：
+
+**Delay:**
+
+`src/Delay.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-09-06 23:25:33
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-09-06 23:25:52
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\5-1_模块化编程\src\Delay.c
+ * @Description: 单独封装延迟函数，以后在#include "Delay.H"用
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+/**
+ * @description: 延时函数
+ * @param {unsigned int} time 延时时间
+ * @return {*}
+ */
+void Delay(unsigned int time) //@11.0592MHz
+{
+    unsigned char i, j;
+
+    while (time) {
+        i = 2;
+        j = 199;
+        do {
+            while (--j);
+        } while (--i);
+        time--;
+    }
+}
+```
+
+`src/Delay.h`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-09-06 23:27:31
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-09-06 23:29:02
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\5-1_模块化编程\src\Delay.h
+ * @Description: 头文件定义，在main.引入
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+// 如果没有定义这个，就进行定义
+#ifndef __DELAY_H__
+#define __DELAY_H__
+
+void Delay(unsigned int time);
+
+#endif
+```
+
+**NixieControl:**
+
+`src/NixieControl.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-09-07 00:09:46
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-09-07 00:25:03
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\5-1_模块化编程\src\NixieControl.c
+ * @Description: 封装操作数码管的函数
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+// 任何自定义变量、函数在调用前必须有定义或声明（.c）
+#include "REG52.H"
+#include "Delay.h"
+
+// 存放着所有数码管的段数数组，由从上到下数（高位到低位）出的二进制转化为十进制，最后的0x00是什么都不显示
+unsigned char NixieTable[] = {
+    0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x00
+};
+
+
+/**
+ * @description: 控制数码管显示封装的函数
+ * @param {unsigned char} lotationSelect 左上角位选端，选中从左到右第几个数码管
+ * @param {unsigned char} displayNum 点亮的段数
+ * @return {*}
+ */
+void NixieControl(unsigned char lotationSelect, unsigned char displayNum){
+    switch (lotationSelect)
+    {
+    case 1:
+        // 对应的是Y7：
+        P2_4 = 1; P2_3 = 1; P2_2 = 1;
+        break;
+    case 2:
+        // 对应的是Y6
+        P2_4 = 1; P2_3 = 1; P2_2 = 0;
+        break;
+    case 3:
+        // Y5
+        P2_4 = 1; P2_3 = 0; P2_2 = 1;
+        break;
+    case 4:
+        // Y4
+        P2_4 = 1; P2_3 = 0; P2_2 = 0;
+        break;
+    case 5:
+        // Y3
+        P2_4 = 0; P2_3 = 1; P2_2 = 1;
+        break;
+    case 6:
+        // Y2
+        P2_4 = 0; P2_3 = 1; P2_2 = 0;
+        break;
+    case 7:
+        // Y1
+        P2_4 = 0; P2_3 = 0; P2_2 = 1;
+        break;
+    case 8:
+        // Y0
+        P2_4 = 0; P2_3 = 0; P2_2 = 0;
+        break;
+    }
+    P0 = NixieTable[displayNum];
+    Delay(1);
+    // 由于数码管是直接使用单片机扫描，会有串口冲突，所以我们在每次对数码管进行修改之后，将段数全部熄灭
+    P0 = 0x00;
+    
+
+}
+```
+
+`src/NixieControl.h`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-09-07 00:09:53
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-09-07 00:18:56
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\5-1_模块化编程\src\NixieControl.h
+ * @Description: 操作数码管函数的定义头文件
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#ifndef __NIXIECONTROL_H__
+#define __NIXIECONTROL_H__
+
+void NixieControl(unsigned char lotationSelect, unsigned char displayNum);
+
+#endif
+```
+
