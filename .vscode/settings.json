@@ -4,6 +4,7 @@
         "regx52.h": "c",
         "REGX52.H": "cpp",
         "delay.h": "c",
-        "nixiecontrol.h": "c"
+        "nixiecontrol.h": "c",
+        "lcd1602.h": "c"
     }
 }
