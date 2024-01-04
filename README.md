@@ -1925,3 +1925,526 @@ void main(){
 ```
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20231108225341.jpg?raw=true)
+
+## 6-1 矩阵键盘
+
+![image-20220809231200626](https://img-blog.csdnimg.cn/img_convert/000078b34ffd99d98a76ede2dbfa7f16.png)
+
+![image-20220809231330278](https://img-blog.csdnimg.cn/img_convert/a5044ce24a10d20cf74497e93819fe42.png)
+
+对于我们的数码管来说，一般在同一时间不能同时控制多位数码管显示不同的数字，但是我们可以用扫描来解决这个问题
+
+**按行扫描：**
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/QQ%E6%88%AA%E5%9B%BE20240104232733.png?raw=true)
+
+​	如果是按行扫描，那么同一时间只有一行是0（P17-P14中只有一个为0），然后检测P13-P10，即可判断一行中哪个按键被按下
+
+​	但是不推荐在这个开发板逐行扫描，因为按行扫描P15会时高时低，而P15连接到步进电机，右边连接BZ，经过驱动器驱动会增加输出电流能力，连接到蜂鸣器上，这个开发板上BZ以一定频率高低变换时蜂鸣器会响。
+
+**按列扫描：**
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/QQ%E6%88%AA%E5%9B%BE20240104232806.png?raw=true)
+
+按列扫描时下面四个口（P10-P13）同时只有一个口给0，扫描上面四个口即可按列判断哪个开关按下
+
+
+
+这一节我们会用到前面的LCD1602、Delay相关函数，所以我们仍然引用
+
+`src/Delay.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-09-06 23:25:33
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-11-08 22:29:33
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\5-2_LCD1602调试工具\src\Delay.c
+ * @Description: 单独封装延迟函数，以后在#include "Delay.H"用
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+/**
+ * @description: 延时函数
+ * @param {unsigned int} time 延时时间
+ * @return {*}
+ */
+void Delay(unsigned int time) //@11.0592MHz
+{
+    unsigned char i, j;
+
+    while (time) {
+        i = 2;
+        j = 199;
+        do {
+            while (--j);
+        } while (--i);
+        time--;
+    }
+}
+```
+
+`src/Delay.h`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2023-09-06 23:27:31
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2023-09-06 23:29:02
+ * @FilePath: \jkdzhx-51SingleChip\Keil Project\5-1_模块化编程\src\Delay.h
+ * @Description: 头文件定义，在main.引入
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+// 如果没有定义这个，就进行定义
+#ifndef __DELAY_H__
+#define __DELAY_H__
+
+void Delay(unsigned int time);
+
+#endif
+```
+
+`src/LCD1602.c`
+
+```c
+#include <REG52.H>
+
+//引脚配置：
+sbit LCD_RS=P2^6;
+sbit LCD_RW=P2^5;
+sbit LCD_EN=P2^7;
+#define LCD_DataPort P0
+
+//函数定义：
+/**
+  * @brief  LCD1602延时函数，12MHz调用可延时1ms
+  * @param  无
+  * @retval 无
+  */
+void LCD_Delay()
+{
+	unsigned char i, j;
+
+	i = 2;
+	j = 239;
+	do
+	{
+		while (--j);
+	} while (--i);
+}
+
+/**
+  * @brief  LCD1602写命令
+  * @param  Command 要写入的命令
+  * @retval 无
+  */
+void LCD_WriteCommand(unsigned char Command)
+{
+	LCD_RS=0;
+	LCD_RW=0;
+	LCD_DataPort=Command;
+	LCD_EN=1;
+	LCD_Delay();
+	LCD_EN=0;
+	LCD_Delay();
+}
+
+/**
+  * @brief  LCD1602写数据
+  * @param  Data 要写入的数据
+  * @retval 无
+  */
+void LCD_WriteData(unsigned char Data)
+{
+	LCD_RS=1;
+	LCD_RW=0;
+	LCD_DataPort=Data;
+	LCD_EN=1;
+	LCD_Delay();
+	LCD_EN=0;
+	LCD_Delay();
+}
+
+/**
+  * @brief  LCD1602设置光标位置
+  * @param  Line 行位置，范围：1~2
+  * @param  Column 列位置，范围：1~16
+  * @retval 无
+  */
+void LCD_SetCursor(unsigned char Line,unsigned char Column)
+{
+	if(Line==1)
+	{
+		LCD_WriteCommand(0x80|(Column-1));
+	}
+	else if(Line==2)
+	{
+		LCD_WriteCommand(0x80|(Column-1+0x40));
+	}
+}
+
+/**
+  * @brief  LCD1602初始化函数
+  * @param  无
+  * @retval 无
+  */
+void LCD_Init()
+{
+	LCD_WriteCommand(0x38);//八位数据接口，两行显示，5*7点阵
+	LCD_WriteCommand(0x0c);//显示开，光标关，闪烁关
+	LCD_WriteCommand(0x06);//数据读写操作后，光标自动加一，画面不动
+	LCD_WriteCommand(0x01);//光标复位，清屏
+}
+
+/**
+  * @brief  在LCD1602指定位置上显示一个字符
+  * @param  Line 行位置，范围：1~2
+  * @param  Column 列位置，范围：1~16
+  * @param  Char 要显示的字符
+  * @retval 无
+  */
+void LCD_ShowChar(unsigned char Line,unsigned char Column,char Char)
+{
+	LCD_SetCursor(Line,Column);
+	LCD_WriteData(Char);
+}
+
+/**
+  * @brief  在LCD1602指定位置开始显示所给字符串
+  * @param  Line 起始行位置，范围：1~2
+  * @param  Column 起始列位置，范围：1~16
+  * @param  String 要显示的字符串
+  * @retval 无
+  */
+void LCD_ShowString(unsigned char Line,unsigned char Column,char *String)
+{
+	unsigned char i;
+	LCD_SetCursor(Line,Column);
+	for(i=0;String[i]!='\0';i++)
+	{
+		LCD_WriteData(String[i]);
+	}
+}
+
+/**
+  * @brief  返回值=X的Y次方
+  */
+int LCD_Pow(int X,int Y)
+{
+	unsigned char i;
+	int Result=1;
+	for(i=0;i<Y;i++)
+	{
+		Result*=X;
+	}
+	return Result;
+}
+
+/**
+  * @brief  在LCD1602指定位置开始显示所给数字
+  * @param  Line 起始行位置，范围：1~2
+  * @param  Column 起始列位置，范围：1~16
+  * @param  Number 要显示的数字，范围：0~65535
+  * @param  Length 要显示数字的长度，范围：1~5
+  * @retval 无
+  */
+void LCD_ShowNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length)
+{
+	unsigned char i;
+	LCD_SetCursor(Line,Column);
+	for(i=Length;i>0;i--)
+	{
+		LCD_WriteData(Number/LCD_Pow(10,i-1)%10+'0');
+	}
+}
+
+/**
+  * @brief  在LCD1602指定位置开始以有符号十进制显示所给数字
+  * @param  Line 起始行位置，范围：1~2
+  * @param  Column 起始列位置，范围：1~16
+  * @param  Number 要显示的数字，范围：-32768~32767
+  * @param  Length 要显示数字的长度，范围：1~5
+  * @retval 无
+  */
+void LCD_ShowSignedNum(unsigned char Line,unsigned char Column,int Number,unsigned char Length)
+{
+	unsigned char i;
+	unsigned int Number1;
+	LCD_SetCursor(Line,Column);
+	if(Number>=0)
+	{
+		LCD_WriteData('+');
+		Number1=Number;
+	}
+	else
+	{
+		LCD_WriteData('-');
+		Number1=-Number;
+	}
+	for(i=Length;i>0;i--)
+	{
+		LCD_WriteData(Number1/LCD_Pow(10,i-1)%10+'0');
+	}
+}
+
+/**
+  * @brief  在LCD1602指定位置开始以十六进制显示所给数字
+  * @param  Line 起始行位置，范围：1~2
+  * @param  Column 起始列位置，范围：1~16
+  * @param  Number 要显示的数字，范围：0~0xFFFF
+  * @param  Length 要显示数字的长度，范围：1~4
+  * @retval 无
+  */
+void LCD_ShowHexNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length)
+{
+	unsigned char i,SingleNumber;
+	LCD_SetCursor(Line,Column);
+	for(i=Length;i>0;i--)
+	{
+		SingleNumber=Number/LCD_Pow(16,i-1)%16;
+		if(SingleNumber<10)
+		{
+			LCD_WriteData(SingleNumber+'0');
+		}
+		else
+		{
+			LCD_WriteData(SingleNumber-10+'A');
+		}
+	}
+}
+
+/**
+  * @brief  在LCD1602指定位置开始以二进制显示所给数字
+  * @param  Line 起始行位置，范围：1~2
+  * @param  Column 起始列位置，范围：1~16
+  * @param  Number 要显示的数字，范围：0~1111 1111 1111 1111
+  * @param  Length 要显示数字的长度，范围：1~16
+  * @retval 无
+  */
+void LCD_ShowBinNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length)
+{
+	unsigned char i;
+	LCD_SetCursor(Line,Column);
+	for(i=Length;i>0;i--)
+	{
+		LCD_WriteData(Number/LCD_Pow(2,i-1)%2+'0');
+	}
+}
+
+```
+
+`src/LCD1602.h`
+
+```c
+#ifndef __LCD1602_H__
+#define __LCD1602_H__
+
+//用户调用函数：
+void LCD_Init();
+void LCD_ShowChar(unsigned char Line,unsigned char Column,char Char);
+void LCD_ShowString(unsigned char Line,unsigned char Column,char *String);
+void LCD_ShowNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length);
+void LCD_ShowSignedNum(unsigned char Line,unsigned char Column,int Number,unsigned char Length);
+void LCD_ShowHexNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length);
+void LCD_ShowBinNum(unsigned char Line,unsigned char Column,unsigned int Number,unsigned char Length);
+
+#endif
+
+```
+
+现在就需要我们单独为矩阵键盘适配代码了：
+
+`src/MatrixKey.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2024-01-04 21:56:35
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2024-01-04 23:14:23
+ * @FilePath: \6-1_矩阵键盘\src\MatrixKey.c
+ * @Description: 按列逐行扫描矩阵键盘（参见图纸下面P13~P10的IO口）
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include "REG52.H"
+#include "Delay.H"
+
+/**
+ * @description: 按列扫描每一个按键，如果按下（低电平）则选中
+ * @return {unsigned char} KeyNum 显示的值
+ */
+unsigned char MatrixKey(){
+
+    unsigned char KeyNum = 0;
+
+    // 先将P1所有bit置为1
+    P1 = 0xFF;
+    // 将P1寄存器的第四bit置为0
+    P1 = 0xF7;// 扫描第一列
+    if (P1 == 0x77) // 判断第一行是否按下
+    {
+        // 加入延时函数消除抖动
+        Delay(20);
+        // 判断是否松手，如果松手，则不需要加入延时函数消除抖动
+        while (P1 == 0x77)
+        {
+            Delay(20);
+            // 按下了矩阵按键S1，所以我们赋值为1
+            KeyNum = 1;
+        }
+        
+    }
+    
+    if (P1 == 0xB7) // 判断第二行是否按下
+    {
+        Delay(20);
+        while (P1 == 0xB7)
+        {
+            Delay(20);
+            // 按下了矩阵按键S5，所以我们赋值为5
+            KeyNum = 5;
+        }
+        
+    }
+    if (P1 == 0xD7) // 判断第三行是否按下
+    {
+        Delay(20);
+        while (P1 == 0xD7)
+        {
+            Delay(20);
+            // 按下了矩阵按键S9，所以我们赋值为9
+            KeyNum = 9;
+        }
+        
+    }
+    if (P1 == 0xE7) // 判断第四行是否按下
+    {
+        Delay(20);
+        while (P1 == 0xE7)
+        {
+            Delay(20);
+            // 按下了矩阵按键S13，所以我们赋值为13
+            KeyNum = 13;
+        }
+        
+    }
+
+    // 先将P1所有bit置为1
+    P1 = 0xFF;
+    P1 = 0xFB; // 扫描第二列
+    if(P1 == 0x7B){Delay(20);while(P1 == 0x7B);Delay(20);KeyNum = 2;} // 判断第一行是否按下
+    if(P1 == 0xBB){Delay(20);while(P1 == 0xBB);Delay(20);KeyNum = 6;} // 判断第二行是否按下
+    if(P1 == 0xDB){Delay(20);while(P1 == 0xDB);Delay(20);KeyNum = 10;} // 判断第三行是否按下
+    if(P1 == 0xEB){Delay(20);while(P1 == 0xEB);Delay(20);KeyNum = 14;} // 判断第四行是否按下
+
+    // 先将P1所有bit置为1
+    P1 = 0xFF;
+    P1 = 0xFD; // 扫描第三列
+    if(P1 == 0x7D){Delay(20);while(P1 == 0x7D);Delay(20);KeyNum = 3;} // 判断第一行是否按下
+    if(P1 == 0xBD){Delay(20);while(P1 == 0xBD);Delay(20);KeyNum = 7;} // 判断第二行是否按下
+    if(P1 == 0xDD){Delay(20);while(P1 == 0xDD);Delay(20);KeyNum = 11;} // 判断第三行是否按下
+    if(P1 == 0xED){Delay(20);while(P1 == 0xED);Delay(20);KeyNum = 15;} // 判断第四行是否按下
+
+    // 先将P1所有bit置为1
+    P1 = 0xFF;
+    P1 = 0xFE; // 扫描第四列
+    if(P1 == 0x7E){Delay(20);while(P1 == 0x7E);Delay(20);KeyNum = 4;} // 判断第一行是否按下
+    if(P1 == 0xBE){Delay(20);while(P1 == 0xBE);Delay(20);KeyNum = 8;} // 判断第二行是否按下
+    if(P1 == 0xDE){Delay(20);while(P1 == 0xDE);Delay(20);KeyNum = 12;} // 判断第三行是否按下
+    if(P1 == 0xEE){Delay(20);while(P1 == 0xEE);Delay(20);KeyNum = 16;} // 判断第四行是否按下
+    
+    return KeyNum;
+
+}
+```
+
+`src/MatrixKey.h`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2024-01-04 21:56:46
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2024-01-04 21:58:37
+ * @FilePath: \6-1_矩阵键盘\src\MatrixKey.h
+ * @Description: 定义头文件
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+
+#ifndef __MATRIXKEY_H__
+#define __MATRIXKEY_H__
+
+unsigned char MatrixKey();
+
+#endif
+```
+
+其中`if(P1 == 0x7B){Delay(20);while(P1 == 0x7B);Delay(20);KeyNum = 2;} // 判断第一行是否按下`
+
+这里的理解是：
+
+* 在扫描第二列（bit2为0）（第3个bit）时，如果P1的bit7（第8个bit）为0，那么此时是判断开关1的状态
+* 由于是机械按键，加入延时函数消除抖动，然后判断是否松手；如果松手，继续消除抖动
+* 返回值KeyNumber
+
+这么做采用了模块化编程的思想，代码移植性强且在主函数中较为简洁，容易理解；**本身机器将一个简单粗暴的思想用很快的速度执行很多次**，是一种想法
+
+主函数`src/main.c`：
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2024-01-04 21:41:50
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2024-01-04 23:10:30
+ * @FilePath: \6-1_矩阵键盘\src\main.c
+ * @Description:矩阵键盘反馈 
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include "REG52.H"
+#include "Delay.h"
+#include "LCD1602.h"
+#include "MatrixKey.h"
+
+unsigned char KeyNum;
+
+void main(){
+
+    // 上电初始化
+    LCD_Init();
+    // 显示字符串
+    LCD_ShowString(1, 1, "MatrixKey!!!");
+    while(1){
+
+        // 接收返回值
+        KeyNum = MatrixKey();
+        if (KeyNum)
+        {
+          LCD_ShowNum(2, 1, KeyNum, 2);  
+        }
+        
+
+    }
+
+}
+```
+
+> 如果删除了if，在开发板上怎么按都发现是0；其实显示过1，但很快到下一个循环，仔细看会发现LCD1602上的数字闪了一下
+
+实机演示：
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240104233734.jpg?raw=true)
+
