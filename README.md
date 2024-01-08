@@ -2448,3 +2448,79 @@ void main(){
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240104233734.jpg?raw=true)
 
+## 6-2 矩阵键盘密码锁
+
+我们直接复制粘贴上一个工程的代码
+
+然后我们开始自定义按键的功能：
+
+	1. 首先我们定义按键的功能：S1~S9定义为数字的1~9，S10定义为0，S11为确认键，S12为取消键，S13~S16不用
+	1. 判断`KeyNum`<=10，同时加入一个计次变量，按下确认或者取消案件后密码计次清零
+
+`src/main.c`
+
+```c
+/*
+ * @Author: czqczqzzzzzz(czq)
+ * @Email: tenchenzhengqing@qq.com
+ * @Date: 2024-01-04 21:41:50
+ * @LastEditors: 陈正清-win
+ * @LastEditTime: 2024-01-08 22:18:18
+ * @FilePath: \6-2_矩阵键盘密码锁\src\main.c
+ * @Description:矩阵键盘反馈 
+ * 
+ * Copyright (c) by czqczqzzzzzz(czq), All Rights Reserved.
+ */
+#include "REG52.H"
+#include "Delay.h"
+#include "LCD1602.h"
+#include "MatrixKey.h"
+
+unsigned char KeyNum;
+unsigned int Password;
+unsigned int inputCount;
+
+void main(){
+
+    // 上电初始化
+    LCD_Init();
+    // 显示字符串
+    LCD_ShowString(1, 1, "Password:");
+    while(1){
+
+        // 接收返回值
+        KeyNum = MatrixKey();
+        if (KeyNum){
+          if(KeyNum <= 10){ //如果S1~S10按键按下，则输入密码
+              if (inputCount < 4){ //输入次数小于4则会进行更新
+                Password *= 10; //新输入密码的话，原来的键位会左移
+                Password += KeyNum % 10; //获取一位密码，如果是S10的话则转化为0
+              }
+              inputCount++; //计次+1
+              LCD_ShowNum(2, 1, Password, 4); //更新显示
+          }
+        }
+        if(KeyNum == 11){ //S11按键的确认逻辑
+            if(Password == 2345){
+                LCD_ShowString(1, 14, "OK!");
+                Password = 0;
+                inputCount = 0;
+                LCD_ShowNum(2, 1, Password, 4); //更新显示
+            }else{
+                LCD_ShowString(1, 14, "ERR");
+                Password = 0;
+                inputCount = 0;
+                LCD_ShowNum(2, 1, Password, 4); //更新显示
+            }
+        }
+        if(KeyNum == 12){ //S12按键的取消逻辑
+            Password = 0;
+            inputCount = 0;
+            LCD_ShowNum(2, 1, Password, 4); //更新显示
+        }
+    }
+
+}
+```
+
+![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240108222804.jpg?raw=true)
