@@ -2524,3 +2524,42 @@ void main(){
 ```
 
 ![](https://github.com/chenzhengqingzzz/jkdzhx-51SingleChip/blob/Pictures/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240108222804.jpg?raw=true)
+
+
+
+## 7-1 定时器
+
+在我们加入独立按键与流水灯联动起来的时候，二者简单进行拼接的时候就会出现一些问题：流水灯在移动的时候会有一个固定的、很长时间的Delay，如果直接连在一起的话，按键检测会很不灵敏，为了解决灵敏度问题，我们研究了本地内容。
+
+![](https://img-blog.csdnimg.cn/img_convert/8bca7df40e6bd48f96e4dd8b6450f3b2.png)
+
+前面季节讲的按键、数码管、LCD1602都是单片机IO口控制的外设，而定时器是单片机内部完成的。它还有其他用途：进行多任务切换，多任务同时执行。
+
+![](https://img-blog.csdnimg.cn/img_convert/88a22f08bfb80041d23850989dd29793.png)
+
+![](https://img-blog.csdnimg.cn/img_convert/e5fdbdf855082af7372f163bcb22700d.png)
+
+![](https://img-blog.csdnimg.cn/img_convert/c9905fc67c0f99744c9c861382f88aed.png)
+
+* 框图中间为计数系统（此处为16位） TL和TH两个一起最大只能存65535（1111 1111 1111 1111），溢出时会将标志位TF0置1，然后向系统申请中断
+
+![](https://img-blog.csdnimg.cn/img_convert/5c5c0a917322a3165222c797893e0909.png)
+
+* 默认12T的模式会分频，输出位1MHz，那么此时的线路则会每隔1us计数一次；C/T是一个选择开关，配置为1时为计数功能(count)，配置为0时为定时器(timer)；本节配置为实现定时器功能
+* 时钟也可以由系统提供，也可以由外部引脚提供，如下图
+
+![](https://img-blog.csdnimg.cn/img_convert/8f1454a7f77888cff25b46d4546b7360.png)
+
+![](https://img-blog.csdnimg.cn/img_convert/51ea2bd69186b20f52872b22e46ef5f2.png)
+
+意味着可以同时完成两项任务，主程序和中断程序
+
+![](https://img-blog.csdnimg.cn/img_convert/3dce841f94f0b1ae54da66f48449b883.png)
+
+![](https://img-blog.csdnimg.cn/img_convert/35a8ba263188e06c71cd76db44121dbb.png)
+
+电路的连接依靠于定时器相关寄存器
+
+![](https://img-blog.csdnimg.cn/img_convert/c73f49554f28f8409c3e8bffdfb61ce4.png)
+
+* 单片机通过配置寄存器来控制内部线路的连接，开关拨到哪个位置就是靠寄存器控制的
